@@ -1,6 +1,6 @@
-# AI-Powered Image Sharing Platform
+# montrest
 
-A decentralized image sharing platform with AI-powered search and recommendations, built on Monad blockchain. The platform uses CLIP-based image embeddings for semantic search and recommendations, with data primarily stored on-chain.
+A Pinterest-like doomscrolling social-fi platform built on Monad blockchain. The platform uses CLIP-based image embeddings for semantic search and recommendations, with data primarily stored on-chain.
 
 ## Features
 
@@ -91,7 +91,7 @@ A decentralized image sharing platform with AI-powered search and recommendation
 
 1. Clone the repository
 ```bash
-git clone [repository-url]
+git clone https://github.com/imortaltatsu/montrest_sub.git
 ```
 
 2. Install frontend dependencies
@@ -104,16 +104,7 @@ npm install
 ```bash
 cd backend
 pip install -r requirements.txt
-```
 
-4. Set up environment variables
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-# Add your Privy API key:
-PRIVY_APP_ID=your-app-id
-PRIVY_APP_SECRET=your-app-secret
-```
 
 5. Start development servers
 ```bash
