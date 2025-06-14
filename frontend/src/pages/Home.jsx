@@ -56,9 +56,12 @@ const Home = () => {
     try {
       setLoading(true);
       setError(null);
-      const results = await searchImages('', walletAddress);
+      const results = await searchImages('', walletAddress, randomSeed);
       setImages(results);
       setHasMore(results.length > 0);
+      if (results.length > 0 && results[0].random_seed) {
+        setRandomSeed(results[0].random_seed);
+      }
     } catch (err) {
       setError('Failed to load images');
       console.error(err);
@@ -72,10 +75,13 @@ const Home = () => {
     
     try {
       setLoading(true);
-      const results = await searchImages('', walletAddress);
+      const results = await searchImages('', walletAddress, randomSeed);
       if (results.length > 0) {
         setImages(prev => [...prev, ...results]);
         setHasMore(true);
+        if (results[0].random_seed) {
+          setRandomSeed(results[0].random_seed);
+        }
       } else {
         setHasMore(false);
       }
@@ -90,6 +96,7 @@ const Home = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) {
+      setRandomSeed(null);
       loadImages();
       return;
     }
@@ -251,7 +258,12 @@ const Home = () => {
 
         <Grid container spacing={2}>
           {images.map((image, index) => (
-            <Grid item xs={getGridColumns()} key={image.hash}>
+            <Grid 
+              item 
+              xs={getGridColumns()} 
+              key={image.hash}
+              ref={index === images.length - 1 ? lastImageRef : null}
+            >
               <Card 
                 sx={{ 
                   height: '100%',

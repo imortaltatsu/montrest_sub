@@ -9,11 +9,12 @@ export const checkHealth = async () => {
   return response.data;
 };
 
-export const searchImages = async (query, walletAddress = null) => {
+export const searchImages = async (query, walletAddress = null, randomSeed = null) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/search`, {
       text: query,
-      wallet_address: walletAddress
+      wallet_address: walletAddress,
+      random_seed: randomSeed
     });
     return response.data.results.map(result => ({
       ...result,
