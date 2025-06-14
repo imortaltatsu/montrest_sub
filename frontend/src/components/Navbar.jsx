@@ -5,19 +5,38 @@ import {
   Toolbar,
   Typography,
   Button,
-  Box,
   useTheme,
   useMediaQuery,
   Menu,
   MenuItem,
   Avatar,
+  Box
 } from '@mui/material';
+import { WalletIcon } from '@heroicons/react/24/outline';
 
 const Navbar = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [account, setAccount] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const connectWallet = async () => {
+    if (typeof window.ethereum !== 'undefined') {
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        setAccount(accounts[0]);
+      } catch (error) {
+        console.error('Error connecting wallet:', error);
+      }
+    } else {
+      alert('Please install MetaMask to use this feature');
+    }
+  };
+
+  const disconnectWallet = () => {
+    setAccount(null);
+    setAnchorEl(null);
+  };
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -27,118 +46,108 @@ const Navbar = () => {
     setAnchorEl(null);
   };
 
-  const connectWallet = async () => {
-    try {
-      if (window.ethereum) {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        setAccount(accounts[0]);
-      } else {
-        alert('Please install MetaMask to use this feature');
-      }
-    } catch (error) {
-      console.error('Error connecting wallet:', error);
-    }
-  };
-
-  const disconnectWallet = () => {
-    setAccount(null);
-    handleClose();
-  };
-
   return (
     <AppBar 
       position="sticky" 
       elevation={0}
-      sx={{
+      sx={{ 
         backgroundColor: 'rgba(18, 18, 18, 0.8)',
         backdropFilter: 'blur(8px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
       }}
     >
-      <Toolbar sx={{ 
-        minHeight: { xs: 56, sm: 64 },
-        px: { xs: 2, sm: 3 },
-      }}>
+      <Toolbar sx={{ minHeight: { xs: 56, sm: 64 } }}>
         <Typography
-          variant={isMobile ? "subtitle1" : "h6"}
+          variant={isMobile ? "h6" : "h5"}
           component={RouterLink}
           to="/"
-          sx={{
+          sx={{ 
             flexGrow: 1,
+            fontWeight: 700,
+            background: 'linear-gradient(45deg, #3f51b5 30%, #f50057 90%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
             textDecoration: 'none',
-            color: 'inherit',
-            display: 'flex',
-            alignItems: 'center',
-            fontWeight: 600,
+            '&:hover': {
+              opacity: 0.9
+            }
           }}
         >
-          Image Search
+          montrest
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Button
-            color="inherit"
             component={RouterLink}
             to="/"
             sx={{
-              px: { xs: 1, sm: 2 },
-              fontSize: { xs: '0.875rem', sm: '1rem' },
+              color: 'white',
+              textTransform: 'none',
+              fontSize: { xs: '0.875rem', sm: '1rem' }
             }}
           >
             Home
           </Button>
-          {account ? (
-            <>
+          {!account ? (
+            <Button
+              variant="contained"
+              onClick={connectWallet}
+              startIcon={<WalletIcon className="h-5 w-5" />}
+              sx={{
+                px: { xs: 1.5, sm: 2 },
+                py: { xs: 0.75, sm: 1 },
+                fontSize: { xs: '0.875rem', sm: '1rem' }
+              }}
+            >
+              Connect Wallet
+            </Button>
+          ) : (
+            <Box>
               <Button
                 onClick={handleMenu}
                 sx={{
-                  color: 'inherit',
+                  color: 'white',
+                  textTransform: 'none',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 1,
+                  gap: 1
                 }}
               >
-                <Avatar 
-                  sx={{ 
-                    width: 32, 
-                    height: 32,
-                    bgcolor: theme.palette.primary.main,
-                    fontSize: '0.875rem'
+                <Avatar
+                  sx={{
+                    width: { xs: 24, sm: 32 },
+                    height: { xs: 24, sm: 32 },
+                    bgcolor: 'primary.main'
                   }}
                 >
-                  {account.slice(0, 2).toUpperCase()}
+                  {account.slice(2, 4)}
                 </Avatar>
-                <Typography sx={{ display: { xs: 'none', sm: 'block' } }}>
-                  {`${account.slice(0, 6)}...${account.slice(-4)}`}
+                <Typography
+                  variant="body2"
+                  sx={{
+                    display: { xs: 'none', sm: 'block' },
+                    maxWidth: 120,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}
+                >
+                  {account.slice(0, 6)}...{account.slice(-4)}
                 </Typography>
               </Button>
               <Menu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
-                sx={{
-                  '& .MuiPaper-root': {
-                    backgroundColor: theme.palette.background.paper,
-                    borderRadius: '12px',
+                PaperProps={{
+                  sx: {
                     mt: 1,
-                  },
+                    backgroundColor: 'background.paper',
+                    borderRadius: 2
+                  }
                 }}
               >
                 <MenuItem onClick={disconnectWallet}>Disconnect</MenuItem>
               </Menu>
-            </>
-          ) : (
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={connectWallet}
-              sx={{
-                px: { xs: 1, sm: 2 },
-                fontSize: { xs: '0.875rem', sm: '1rem' },
-                borderRadius: '8px',
-              }}
-            >
-              Connect Wallet
-            </Button>
+            </Box>
           )}
         </Box>
       </Toolbar>

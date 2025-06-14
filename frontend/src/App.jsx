@@ -8,23 +8,25 @@ const theme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#e60023',
+      main: '#3f51b5',
     },
     secondary: {
-      main: '#111111',
+      main: '#f50057',
     },
     background: {
       default: '#121212',
       paper: '#1e1e1e',
     },
-    text: {
-      primary: '#ffffff',
-      secondary: '#b0b0b0',
-    },
   },
   typography: {
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-    h6: {
+    h1: {
+      fontWeight: 700,
+    },
+    h2: {
+      fontWeight: 600,
+    },
+    h3: {
       fontWeight: 600,
     },
   },
@@ -32,24 +34,17 @@ const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          backgroundColor: '#1e1e1e',
-          borderRadius: '12px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          borderRadius: 12,
+          backgroundImage: 'none',
         },
       },
     },
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: '8px',
+          borderRadius: 8,
           textTransform: 'none',
           fontWeight: 600,
-        },
-        contained: {
-          boxShadow: 'none',
-          '&:hover': {
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-          },
         },
       },
     },
@@ -57,7 +52,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
-            borderRadius: '8px',
+            borderRadius: 8,
           },
         },
       },
@@ -65,17 +60,12 @@ const theme = createTheme({
   },
 });
 
-const App = () => {
+function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <div style={{ 
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          backgroundColor: theme.palette.background.default
-        }}>
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
           <Navbar />
           <main style={{ flex: 1 }}>
             <Routes>
@@ -86,6 +76,6 @@ const App = () => {
       </Router>
     </ThemeProvider>
   );
-};
+}
 
 export default App;
