@@ -17,19 +17,21 @@ import {
   useMediaQuery,
   IconButton,
   Tooltip,
+  Fade,
 } from '@mui/material';
 import { MagnifyingGlassIcon, HeartIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import { searchImages, listImages, likeImage, unlikeImage, getUserLikes } from '../services/api';
+import { useWallet } from '../contexts/WalletContext';
 
 const Home = () => {
+  const { walletAddress } = useWallet();
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [walletAddress, setWalletAddress] = useState(null);
   const [likedImages, setLikedImages] = useState(new Set());
   const [randomSeed, setRandomSeed] = useState(null);
   const theme = useTheme();
@@ -126,6 +128,7 @@ const Home = () => {
       }
     } catch (err) {
       console.error('Error toggling like:', err);
+      setError('Failed to update like status');
     }
   };
 
@@ -246,134 +249,72 @@ const Home = () => {
           </Alert>
         )}
 
-        <Grid 
-          container 
-          spacing={{ xs: 1, sm: 1.5, md: 2 }}
-          sx={{
-            mx: { xs: -0.5, sm: -1, md: -1.5 }
-          }}
-        >
+        <Grid container spacing={2}>
           {images.map((image, index) => (
-            <Grid
-              item
-              xs={12}
-              sm={6}
-              md={4}
-              lg={getGridColumns()}
-              key={image.hash}
-              ref={index === images.length - 1 ? lastImageRef : null}
-              sx={{
-                px: { xs: 0.5, sm: 1, md: 1.5 }
-              }}
-            >
-              <Card
-                sx={{
+            <Grid item xs={getGridColumns()} key={image.hash}>
+              <Card 
+                sx={{ 
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
-                  transition: 'all 0.3s ease',
+                  position: 'relative',
                   '&:hover': {
-                    transform: 'scale(1.02)',
-                    boxShadow: 6,
-                    '& .MuiCardMedia-root': {
-                      transform: 'scale(1.05)'
+                    transform: 'translateY(-4px)',
+                    transition: 'transform 0.2s ease-in-out',
+                    '& .like-button': {
+                      opacity: 1,
                     }
                   }
                 }}
               >
-                <Box sx={{ position: 'relative', overflow: 'hidden' }}>
-                  <CardMedia
-                    component="img"
-                    height={getImageHeight()}
-                    image={image.arweaveUrl}
-                    alt={image.filename}
-                    loading="lazy"
+                <CardMedia
+                  component="img"
+                  height={getImageHeight()}
+                  image={image.arweaveUrl}
+                  alt={image.filename}
+                  loading="lazy"
+                  sx={{
+                    objectFit: 'cover',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => navigate(`/image/${image.hash}`)}
+                />
+                <Fade in={true}>
+                  <IconButton
+                    className="like-button"
+                    onClick={() => handleLike(image.hash)}
                     sx={{
-                      objectFit: 'cover',
-                      backgroundColor: 'grey.900',
-                      transition: 'transform 0.3s ease',
-                      width: '100%'
-                    }}
-                  />
-                  <Tooltip title={walletAddress ? (likedImages.has(image.hash) ? "Unlike" : "Like") : "Connect wallet to like"}>
-                    <IconButton
-                      sx={{
-                        position: 'absolute',
-                        top: { xs: 4, sm: 6, md: 8 },
-                        right: { xs: 4, sm: 6, md: 8 },
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        '&:hover': {
-                          backgroundColor: 'rgba(0, 0, 0, 0.7)'
-                        },
-                        padding: { xs: 0.5, sm: 0.75, md: 1 }
-                      }}
-                      onClick={() => handleLike(image.hash)}
-                    >
-                      {likedImages.has(image.hash) ? (
-                        <HeartSolidIcon className={`${isMobile ? 'h-4 w-4' : isTablet ? 'h-5 w-5' : 'h-6 w-6'} text-red-500`} />
-                      ) : (
-                        <HeartIcon className={`${isMobile ? 'h-4 w-4' : isTablet ? 'h-5 w-5' : 'h-6 w-6'} text-white`} />
-                      )}
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-                <CardContent sx={{ 
-                  flexGrow: 1,
-                  p: { xs: 1, sm: 1.5, md: 2 }
-                }}>
-                  <Typography 
-                    variant="body2" 
-                    color="text.secondary" 
-                    noWrap
-                    sx={{
-                      fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' }
+                      position: 'absolute',
+                      top: 8,
+                      right: 8,
+                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                      color: likedImages.has(image.hash) ? '#ff4081' : 'white',
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        transform: 'scale(1.1)',
+                      },
+                      transition: 'all 0.2s ease-in-out',
+                      opacity: likedImages.has(image.hash) ? 1 : 0.8,
+                      width: { xs: 36, sm: 40 },
+                      height: { xs: 36, sm: 40 },
                     }}
                   >
-                    {image.filename}
-                  </Typography>
-                  {image.similarity && (
-                    <Typography 
-                      variant="body2" 
-                      color="text.secondary"
-                      sx={{ 
-                        opacity: 0.8,
-                        fontSize: '0.875rem'
-                      }}
-                    >
-                      Similarity: {(image.similarity * 100).toFixed(2)}%
-                    </Typography>
-                  )}
-                </CardContent>
-                <CardActions sx={{ p: 2, pt: 0 }}>
-                  <Button
-                    size="small"
-                    color="primary"
-                    onClick={() => window.open(image.arweaveUrl, '_blank')}
-                    fullWidth
-                    sx={{
-                      borderRadius: '8px',
-                      textTransform: 'none',
-                      fontWeight: 600,
-                    }}
-                  >
-                    View Full Size
-                  </Button>
-                </CardActions>
+                    {likedImages.has(image.hash) ? (
+                      <HeartSolidIcon className="h-6 w-6" />
+                    ) : (
+                      <HeartIcon className="h-6 w-6" />
+                    )}
+                  </IconButton>
+                </Fade>
               </Card>
             </Grid>
           ))}
+          {loading && (
+            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+            </Grid>
+          )}
         </Grid>
-
-        {loading && images.length > 0 && (
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            mt: { xs: 2, sm: 3, md: 4 },
-            mb: { xs: 2, sm: 3, md: 4 }
-          }}>
-            <CircularProgress size={isMobile ? 24 : isTablet ? 28 : 32} />
-          </Box>
-        )}
       </Container>
     </Box>
   );

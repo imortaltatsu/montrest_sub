@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
+import { WalletProvider } from './contexts/WalletContext';
 
 const theme = createTheme({
   palette: {
@@ -64,16 +65,18 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-          <Navbar />
-          <main style={{ flex: 1 }}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-            </Routes>
-          </main>
-        </div>
-      </Router>
+      <WalletProvider>
+        <Router>
+          <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+            <Navbar />
+            <main style={{ flex: 1 }}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+              </Routes>
+            </main>
+          </div>
+        </Router>
+      </WalletProvider>
     </ThemeProvider>
   );
 }
